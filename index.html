@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <title>翻牌配對遊戲</title>
+
+    <style>
+        body {
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, 80px);
+            gap: 12px;
+            /* ⭐ 重點：拉開距離 */
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .card {
+            width: 80px;
+            height: 80px;
+            background: gray;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+
+            font-size: 12px;
+            padding: 5px;
+            text-align: center;
+
+            /* ⭐ 卡牌感關鍵 */
+            border-radius: 10px;
+            /* 圓角 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            /* 陰影 */
+            transition: 0.2s;
+            /* 動畫 */
+        }
+
+        .open {
+            background: white;
+        }
+
+        .matched {
+            background: lightgreen;
+        }
+
+        #info {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>翻牌配對遊戲</h2>
+ 
+    <div class="board" id="board"></div>
+
+    <script>
+        // ⭐ 這裡放你的配對（一定32組）
+        const words = [
+            ["abbreviate", "make a word or phrase shorter"],
+            ["insincere", "Not being honest or truthful"],
+            ["gauge", "To measure"],
+            ["perceived", "thought of by people"],
+            ["likelihood", "The chance or possibility"],
+            ["recipients", "People who receive something"],
+            ["signal", "A sign or action"],
+
+            ["evolved", "Changed over a long period of time"],
+            ["distinct", "easy to notice"],
+            ["genre", "A type"],
+            ["truncated", "Shortened by cutting off part of something"],
+            ["humble", "modest"],
+            ["convey", "To show or express"],
+            ["elicited", "Caused a reaction or response"],
+
+            ["What might people who use abbreviations be less likely to receive?", "responses"],
+            ["Where are the researchers from besides Stanford University?", "University of Toronto"],
+            ["How many text messages did test participants look at?", "five thousand"],
+            ["What did test participants evaluate the likelihood of?", "responding"],
+            ["What do abbreviations show a lower level of from text writers?", "effort"],
+            ["What has the language in text messages evolved into?", "a distinct genre of writing"],
+            ["What happened in 1992?", "The first text message was sent"],
+            ["What does the abbreviation 'cul8r' mean?", "see you later"],
+            ["What did a researcher think texters might like?", "abbreviations"],
+            ["What did abbreviations elicit among people who use them?", "negative"],
+
+            ["portion", "周伯勳"],
+            ["donkey", "驢子"],
+            ["Nora", "fluffy"],
+            ["sugar", "林芃辰"],
+            ["長褲", "哲銘"],
+            ["安全帽", "安乾鎬"],
+            ["新版", "耳機"],
+            ["imho", "in my humble opinion"]
+        ];
+        // ⭐ 生成卡片（關鍵）
+        let cards = [];
+
+        words.forEach(pair => {
+            cards.push({
+                text: pair[0],
+                id: pair
+            });
+            cards.push({
+                text: pair[1],
+                id: pair
+            });
+        });
+
+        // 保證64張
+        cards = cards.slice(0, 64);
+
+        // 洗牌
+        cards.sort(() => Math.random() - 0.5);
+
+        const board = document.getElementById("board");
+        
+
+        let first = null;
+        let second = null;
+        let lock = false;
+        
+        let matchedCount = 0;
+
+        // 建立卡片
+        cards.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "card";
+
+            div.onclick = () => {
+                if (lock || div.classList.contains("open") || div.classList.contains("matched")) return;
+
+                div.classList.add("open");
+                div.innerText = item.text;
+
+                if (!first) {
+                    first = {
+                        div,
+                        item
+                    };
+                } else {
+                    second = {
+                        div,
+                        item
+                    };
+                    
+
+                    lock = true;
+
+                    setTimeout(() => {
+                        if (first.item.id === second.item.id) {
+                            first.div.classList.add("matched");
+                            second.div.classList.add("matched");
+                            matchedCount += 2;
+
+                            if (matchedCount === 64) {
+                                setTimeout(() => {
+                                    alert("🎉 恭喜完成！");
+                                }, 200);
+                            }
+
+                        } else {
+                            // ❌ 錯誤 → 自動翻回
+                            first.div.classList.remove("open");
+                            second.div.classList.remove("open");
+                            first.div.innerText = "";
+                            second.div.innerText = "";
+                        }
+
+                        first = null;
+                        second = null;
+                        lock = false;
+
+                    }, 600);
+                }
+            };
+
+            board.appendChild(div);
+        });
+    </script>
+
+</body>
+
+</html>
